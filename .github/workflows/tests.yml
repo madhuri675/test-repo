@@ -27,3 +27,8 @@ jobs:
             cat test-output.txt
             echo "```"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish the test totals as an annotation
+        if: always()
+        run: |
+          totals=$(grep -E '^(#|ℹ) (tests|pass|fail)' test-output.txt | tr -s ' ' | tr '\n' ' ')
+          echo "::notice title=Test totals::$totals"
