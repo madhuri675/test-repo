@@ -1,0 +1,34 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Run the tests
+        run: npm test 2>&1 | tee test-output.txt
+      - name: Show the test output on the run summary
+        if: always()
+        run: |
+          {
+            echo "### Test output"
+            echo "```"
+            cat test-output.txt
+            echo "```"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish the test totals as an annotation
+        if: always()
+        run: |
+          totals=$(grep -E '^(#|ℹ) (tests|pass|fail)' test-output.txt | tr -s ' ' | tr '\n' ' ')
+          echo "::notice title=Test totals::$totals"
