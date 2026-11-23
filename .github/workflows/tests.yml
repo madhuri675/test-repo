@@ -17,4 +17,13 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Run the tests
-        run: npm test
+        run: npm test 2>&1 | tee test-output.txt
+      - name: Show the test output on the run summary
+        if: always()
+        run: |
+          {
+            echo "### Test output"
+            echo "```"
+            cat test-output.txt
+            echo "```"
+          } >> "$GITHUB_STEP_SUMMARY"
